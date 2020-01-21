@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!-- 开启注解
+        注意:spring 扫描与表对应的实体类，以及service层的类，不能用来扫描Controller层的类，
+        因为Controller层的类需要由SpringMVC容器来管理，如果采用了Spring容器管理，
+        就会产生声明式事物无效
+     -->
+    <context:component-scan base-package="cn.it.service"></context:component-scan>    <!-- 加载属性文件 -->
+    <context:property-placeholder location="classpath:db.properties"/>
+<!--    <context:component-scan base-package="cn.it.dao"></context:component-scan>-->
+    <!-- 配置数据源 -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" >
+        <property name="driverClassName" value="${jdbc.driverClass}"></property>
+        <property name="url" value="${jdbc.jdbcUrl}"></property>
+        <property name="username" value="${jdbc.user}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <!-- 配置sqlSessionFactory -->
+    <!-- sqlSessionFactory ,注册sqlSession工厂-->
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--dataSource的类型是DataSource是一个接口，上面配置的DriverManagerDataSouce类实现了DataSource接口  -->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--配置dao扫描-->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.it.dao"></property>
+    </bean>
+    <!--配置事务处理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <tx:annotation-driven/>
+    <!--加载mybatis的配置文件 begin-->
+</beans>

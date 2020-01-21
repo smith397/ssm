@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context-4.3.xsd
+  http://www.springframework.org/schema/mvc
+  http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd ">
+
+    <!-- 开启扫描注解的包
+        当前的配置文件是被DispatcherServlet加载的
+        注意，此处的处理器所在的包要在springMVC的配置文件中进行扫描，不能在spring的配置文件中进行
+        扫描，因为处理器要注册到springMVC容器中，也就是controller所在的包需要被SpringMVC容器扫描，
+        不能被Spring容器所扫描
+     -->
+    <context:component-scan base-package= "cn.it.colltroller"></context:component-scan>
+    <!-- 注解驱动 -->
+    <!--
+        上面的注解相当于下面两个类
+        org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping
+        org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter
+     -->
+    <mvc:annotation-driven></mvc:annotation-driven>
+<!--    <context:annotation-config />-->
+    <!-- 放行静态资源,不拦截静态资源 -->
+    <!-- /js/* 代表项目下的js文件夹下的所有的文件
+        /js/js** 代表项目下的js文件夹下的所有文件以及子文件夹下的所有文件
+        <mvc:resources location="/js/" mapping="/js/**"></mvc:resources>
+        上面的mapping代表的是请求的资源的请求路径，location请求的资源所在的服务器的路径
+        下面代表：只要发现 请求路径 符合/js/**格式，就到当前项目所在的本地服务器的/js/路径下去找资源
+
+     -->
+    <mvc:resources location="/js/" mapping="/js/**"/>
+    <mvc:resources location="/css/" mapping="/css/**"/>
+    <mvc:resources location="/images/" mapping="/images/**"/>
+
+    <!-- 注册  视图解析器
+        有时候，我们为了保护页面不被别人访问，可以把页面放在WEB-INF中，
+        就可以把prefix配置成"/WEB-INF/"
+        【注意】视图解析器是解析处理器最后的return 的值，并非我们在前端自己输入的请求
+        如果return 的视图有前缀(forward或者redirect)，视图解析器用默认的，如果没有前缀，则用我们自己配置的
+    -->
+    <bean id="viewResolver" class=" org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/page/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+    <!-- 拦截器的配置 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- /** 表示对所有的方法都进行拦截 -->
+            <mvc:mapping path="/user/*"/>
+            <!-- 指定不需要拦截的方法 -->
+<!--            <mvc:exclude-mapping path="/UserController/Userlogin"/>-->
+            <!-- 指定拦截器 -->
+            <bean class="cn.it.intcetor.MyInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
